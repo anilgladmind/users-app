@@ -12,15 +12,33 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
 
-app.use(bodyParser.urlencoded({extended: true}));                                                  
-app.use(bodyParser.json({ type: 'application/json'}));
+app.use(bodyParser.urlencoded({extended: true}));     
+app.use(bodyParser.json());                                             
+//app.use(bodyParser.json({ type: 'application/json'}));
 app.use(express.static(__dirname + '/public/'));
 
-app.get('/', (req, res) => {
+app.get('/api/users', (req, res) => {
   User.find({}, function(err,data){
 	if(err) throw err;
 	return res.json({message: "Succefully Get the Data", data:data});
   });
+});
+
+function successSave(response, err, userdetail){
+	if(err){
+		console.log(err);
+	}else{
+		console.log("Inside callback");
+		response.json(userdetail);
+	}
+}
+
+app.post('/api/user',(req,res) => {
+	console.log(req.body);
+	var userdetail = new User(req.body);
+    console.log(userdetail);
+    userdetail.save(successSave.bind(null,res));
+    console.log("inside post");
 });
 
 app.listen(3000, function() {
